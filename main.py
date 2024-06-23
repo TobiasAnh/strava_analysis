@@ -1,23 +1,59 @@
-from __future__ import print_statement
-import time
-import swagger_client
-from swagger_client.rest import ApiException
-from pprint import pprint
+import webbrowser
+from datetime import datetime
+from funcs import *
+from dotenv import load_dotenv
+import os
 
-# Configure OAuth2 access token for authorization: strava_oauth
-swagger_client.configuration.access_token = "YOUR_ACCESS_TOKEN"
+# Authentication
+# Load environment variables from a .env file
+load_dotenv()
 
-# create an instance of the API class
-api_instance = swagger_client.AthletesApi()
-
-try:
-    # Get Authenticated Athlete
-    api_response = api_instance.getLoggedInAthlete()
-    pprint(api_response)
-except ApiException as e:
-    print("Exception when calling AthletesApi->getLoggedInAthlete: %s\n" % e)
+# Access the environment variables
+CLIENT_ID = os.getenv("CLIENT_ID")
+CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 
 
-client_secret = "246cfc6ae2519331905a0c0834fc05aaa42ad0b4"
-access_token = "9409868a418c3538743cfbfa89f5ac25405da48e"
-refresh_token = "e4b4a4ce52d22187112c03a0aaf370329efe18f8"
+# Step 1: Get authorization URL and open it in the browser
+authorization_url = get_strava_authorization_url(CLIENT_ID)
+print(f"Please go to this URL and authorize the application: {authorization_url}")
+webbrowser.open(authorization_url)
+code = input("Enter the code you received after authorization: ")
+
+access_token, refresh_token = exchange_code_for_token(
+    CLIENT_ID,
+    CLIENT_SECRET,
+    code,
+)
+
+# Get athlete information
+url = "https://www.strava.com/api/v3/athlete"
+athlete = make_request(url, access_token=access_token)
+createJson(athlete, "athlete.json")
+
+# Get activities
+start = athlete["created_at"]
+end = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+start_unix = convert_to_timestamp(start)
+end_unix = convert_to_timestamp(end)
+
+
+page = 1
+activities = []
+while True:
+    try:
+        url = f"https://www.strava.com/api/v3/athlete/activities?before={end_unix}&after={start_unix}&page={page}&per_page=30"
+
+        page_respond = make_request(url, access_token=access_token)
+        if not page_respond:
+            break
+
+        print(f"Found page: {page}")
+        activities += page_respond
+        page += 1
+
+    except Exception as e:
+        print(e)
+        break
+
+len(activities)
+createJson(activities, f"activities.json")
