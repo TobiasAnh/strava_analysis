@@ -2,8 +2,8 @@ import folium
 from funcs import importJson, decodePolyline
 
 activities = importJson("activities.json")
-len(activities)
-activities[9]
+
+
 # Create a map centered at the average location
 average_lat = 49.37
 average_lon = 8.78
@@ -11,7 +11,7 @@ average_lon = 8.78
 mymap = folium.Map(location=[average_lat, average_lon], zoom_start=12)
 for activity in activities:
     print(activity["sport_type"])
-    # if activity[""]
+
     if not activity["map"]["summary_polyline"]:
         print(f"No polyline found for {activity['name']}, {activity['start_date']}")
         continue
@@ -38,4 +38,5 @@ for activity in activities:
 
 
 # Save the map to an HTML file
-mymap.save("map_with_route.html")
+heatmap_name = "map.html"
+mymap.save(heatmap_name)
