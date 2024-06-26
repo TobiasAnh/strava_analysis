@@ -1,8 +1,35 @@
+import webbrowser
 import requests
 import json
 import time
-
+from dotenv import load_dotenv
+import os
 import polyline
+from datetime import datetime
+
+
+# Authentication
+# Load environment variables from a .env file
+def getTokens():
+
+    # load and extract credentials in .env file
+    load_dotenv()
+    CLIENT_ID = os.getenv("CLIENT_ID")
+    CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+
+    # Get authorization URL and open it in the browser
+    authorization_url = get_strava_authorization_url(CLIENT_ID)
+    print(f"Please go to this URL and authorize the application: {authorization_url}")
+    webbrowser.open(authorization_url)
+    code = input("Enter the code you received after authorization: ")
+
+    access_token, refresh_token = exchange_code_for_token(
+        CLIENT_ID,
+        CLIENT_SECRET,
+        code,
+    )
+
+    return access_token, refresh_token
 
 
 def decodePolyline(encoded_polyline, precision=5):
@@ -10,6 +37,43 @@ def decodePolyline(encoded_polyline, precision=5):
     decoded_coordinates = polyline.decode(encoded_polyline, precision)
 
     return decoded_coordinates
+
+
+# Get athlete information
+def getAthleteInfo(access_token, createJson=False):
+    url = "https://www.strava.com/api/v3/athlete"
+    athlete = make_request(url, access_token=access_token)
+    if createJson:
+        createJson(athlete, "athlete.json")
+
+    return athlete
+
+
+def getActivities(access_token, athlete, start=None, end=None, createJson=False):
+
+    # When no start and end arguments are given, set maximum time frame
+    start = athlete["created_at"]
+    end = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
+    start_unix = convert_to_timestamp(start)
+    end_unix = convert_to_timestamp(end)
+
+    page = 1
+    activities = []
+    while True:
+        url = f"https://www.strava.com/api/v3/athlete/activities?before={end_unix}&after={start_unix}&page={page}&per_page=30"
+
+        page_respond = make_request(url, access_token=access_token)
+        if not page_respond:
+            break
+
+        print(f"Found page: {page}")
+        activities += page_respond
+        page += 1
+
+    if createJson:
+        createJson(activities, f"activities.json")
+
+    return activities
 
 
 def createJson(batch: dict, json_filepath="file.json"):
@@ -66,10 +130,6 @@ def exchange_code_for_token(client_id, client_secret, code):
     access_token = response_dict["access_token"]
     refresh_token = response_dict["refresh_token"]
 
-    if access_token and refresh_token:
-        print("Exchange succesful: access_token and refresh_token")
-    else:
-        print("Failed to get tokens.")
     return access_token, refresh_token
 
 
