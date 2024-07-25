@@ -1,6 +1,6 @@
 import pandas as pd
 
-from func2 import (
+from func import (
     get_tokens,
     get_athlete_info,
     get_activities,
