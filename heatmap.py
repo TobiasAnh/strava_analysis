@@ -10,25 +10,21 @@ average_lon = 8.78
 
 mymap = folium.Map(location=[average_lat, average_lon], zoom_start=12)
 for activity in activities:
-    print(activity["sport_type"])
 
     if not activity["map"]["summary_polyline"]:
-        print(f"No polyline found for {activity['name']}, {activity['start_date']}")
+        # print(f"No polyline found for {activity['name']}, {activity['start_date']}")
         continue
-
-    # if not activity["sport_type"] == "MountainBikeRide":
-    #    continue
 
     if activity["sport_type"] == "Ride":
         color = "blue"
     elif activity["sport_type"] == "MountainBikeRide":
         color = "red"
     elif activity["sport_type"] == "Hike":
-        color = "brown"
+        color = "yellow"
     elif activity["sport_type"] == "VirtualRide":
         color = "pink"
     else:
-        color = "green"
+        color = "brown"
 
     activity_polyline = activity["map"]["summary_polyline"]
     coordinates = decodePolyline(activity_polyline, precision=5)
