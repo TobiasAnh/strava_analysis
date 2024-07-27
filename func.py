@@ -2,7 +2,6 @@ import webbrowser
 import requests
 import json
 import os
-import polyline
 import logging
 from datetime import datetime
 from dotenv import load_dotenv
@@ -18,6 +17,9 @@ BASE_URL = "https://www.strava.com/api/v3/"
 load_dotenv()
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
+project_id = os.getenv("project-id")
+dataset = os.getenv("dataset")
+
 
 if not CLIENT_ID or not CLIENT_SECRET:
     raise ValueError("Missing CLIENT_ID or CLIENT_SECRET in environment variables")

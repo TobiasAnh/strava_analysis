@@ -1,7 +1,8 @@
+import polyline
 import folium
-from funcs import importJson, decodePolyline
+from func import import_json
 
-activities = importJson("activities.json")
+activities = import_json("activities.json")
 
 
 # Create a map centered at the average location
@@ -27,7 +28,7 @@ for activity in activities:
         color = "brown"
 
     activity_polyline = activity["map"]["summary_polyline"]
-    coordinates = decodePolyline(activity_polyline, precision=5)
+    coordinates = polyline.decode(activity_polyline)
 
     # Add a PolyLine to connect the coordinates
     folium.PolyLine(coordinates, color=color, weight=2.5, opacity=0.5).add_to(mymap)
