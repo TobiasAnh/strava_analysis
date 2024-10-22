@@ -23,7 +23,7 @@ def main():
     create_json(activities, "activities.json")
     activities = import_json("activities.json")
     df = pd.DataFrame(activities)
-    df.to_csv("file_short.csv")
+    df.to_csv("activities.csv")
 
 
 if __name__ == "__main__":
