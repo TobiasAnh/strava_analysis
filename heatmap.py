@@ -13,7 +13,7 @@ mymap = folium.Map(location=[average_lat, average_lon], zoom_start=12)
 for activity in activities:
 
     if not activity["map"]["summary_polyline"]:
-        # print(f"No polyline found for {activity['name']}, {activity['start_date']}")
+        print(f"No polyline found for {activity['name']}, {activity['start_date']}")
         continue
 
     if activity["sport_type"] == "Ride":
@@ -35,5 +35,5 @@ for activity in activities:
 
 
 # Save the map to an HTML file
-heatmap_name = "map.html"
+heatmap_name = "heatmap.html"
 mymap.save(heatmap_name)
