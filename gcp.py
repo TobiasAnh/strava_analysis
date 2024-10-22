@@ -1,42 +1,22 @@
 import json
+import os
 import logging
 from google.cloud import bigquery
 import google.api_core.exceptions
 
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 
 # GCP
-# TODO Refactoring required
-
-
-def convertSchema(file_path):
-    # Replace 'path_to_schema.json' with the path to your schema.json file
-    with open(file_path, "r") as file:
-        columns = json.load(file)
-
-    schema = []
-    for column in columns:
-        name = column["name"]
-        type = column["type"]
-        mode = column["mode"]
-        description = column["description"]
-
-        schema.append(
-            bigquery.SchemaField(
-                name=name,
-                field_type=type,
-                mode=mode,
-                description=description,
-            )
-        )
-
-    return schema
 
 
 # Construct a BigQuery job configuration object.
 job_config = bigquery.LoadJobConfig(
     source_format=bigquery.SourceFormat.CSV,
     skip_leading_rows=1,  # Adjust this if your CSV file has a header row.
-    schema=convertSchema("schema.json"),
+    schema=AUTO # <- TODO adjust
     write_disposition=bigquery.WriteDisposition.WRITE_APPEND,
     time_partitioning=bigquery.TimePartitioning(
         type_=bigquery.TimePartitioningType.DAY,
@@ -45,7 +25,7 @@ job_config = bigquery.LoadJobConfig(
 )
 
 
-# Set up GCP
+# Set up GCP # TODO set up gcp project
 project_id = os.getenv("project-id")
 dataset = os.getenv("dataset")
 bigquery_client = bigquery.Client(project=project_id)
