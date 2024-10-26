@@ -1,202 +1,50 @@
-import psycopg2
+from sqlalchemy import create_engine, text
 import pandas as pd
 
-# Database connection parameters
-db_params = {
-    "dbname": "strava",
-    "user": "rasp",
-    "password": "rasp",
-    "host": "localhost",
-    "port": "5432",
-}
+from func import convert_str_to_unix
 
-# Load CSV into a DataFrame
+# Create the engine
+engine = create_engine("postgresql://rasp:rasp@localhost:5432/strava")
+
+
+# Get the latest start_date from the activities table
+def get_latest_start_date():
+    """Query the database to find the latest start_date."""
+    with engine.connect() as connection:
+        result = connection.execute(text("SELECT MAX(start_date) FROM activities;"))
+        latest_start_date = result.scalar()  # Get the single scalar value
+        print("Last activity stored in database >> strava << from ... ")
+        print(latest_start_date)
+    return convert_str_to_unix(latest_start_date)
+
+
+# Load the CSV file
 df = pd.read_csv(
-    "activities.csv", index_col=0
-)  # Make sure data.csv is created from JSON
-
-# Connect to the PostgreSQL database
-conn = psycopg2.connect(**db_params)
-cursor = conn.cursor()
-
-# Create table structure if not exists
-# Load and execute the schema file
-with open("schema.sql", "r") as schema_file:
-    schema_sql = schema_file.read()
-    cursor.execute(schema_sql)
-    conn.commit()
-
-# Insert CSV data into the PostgreSQL table
-for _, row in df.iterrows():
-    row = row.replace({pd.NA: None, pd.NaT: None})
-    cursor.execute(
-        """
-        INSERT INTO activities (
-            resource_state, athlete, name, distance, moving_time, elapsed_time, total_elevation_gain,
-            activities_type, sport_type, workout_type, id, start_date, start_date_local, timezone, utc_offset,
-            location_city, location_state, location_country, achievement_count, kudos_count,
-            comment_count, athlete_count, photo_count, trainer, commute, manual, private, visibility,
-            flagged, gear_id, start_latlng, end_latlng, average_speed, max_speed, average_cadence,
-            average_temp, average_watts, max_watts, weighted_average_watts, device_watts, kilojoules,
-            has_heartrate, heartrate_opt_out, display_hide_heartrate_option, elev_high, elev_low,
-            upload_id, upload_id_str, external_id, from_accepted_tag, pr_count, total_photo_count,
-            has_kudoed, suffer_score, average_heartrate, max_heartrate, map_id, summary_polyline,
-            map_resource_state
-        ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                  %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                  %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
-        )
-        """,
-        (
-            row["resource_state"],
-            row["athlete"],
-            row["name"],
-            row["distance"],
-            row["moving_time"],
-            row["elapsed_time"],
-            row["total_elevation_gain"],
-            row["activities_type"],
-            row["sport_type"],
-            row["workout_type"],
-            row["id"],
-            row["start_date"],
-            row["start_date_local"],
-            row["timezone"],
-            row["utc_offset"],
-            row["location_city"],
-            row["location_state"],
-            row["location_country"],
-            row["achievement_count"],
-            row["kudos_count"],
-            row["comment_count"],
-            row["athlete_count"],
-            row["photo_count"],
-            row["trainer"],
-            row["commute"],
-            row["manual"],
-            row["private"],
-            row["visibility"],
-            row["flagged"],
-            row["gear_id"],
-            row["start_latlng"],
-            row["end_latlng"],
-            row["average_speed"],
-            row["max_speed"],
-            row["average_cadence"],
-            row["average_temp"],
-            row["average_watts"],
-            row["max_watts"],
-            row["weighted_average_watts"],
-            row["device_watts"],
-            row["kilojoules"],
-            row["has_heartrate"],
-            row["heartrate_opt_out"],
-            row["display_hide_heartrate_option"],
-            row["elev_high"],
-            row["elev_low"],
-            row["upload_id"],
-            row["upload_id_str"],
-            row["external_id"],
-            row["from_accepted_tag"],
-            row["pr_count"],
-            row["total_photo_count"],
-            row["has_kudoed"],
-            row["suffer_score"],
-            row["average_heartrate"],
-            row["max_heartrate"],
-            row["map_id"],
-            row["summary_polyline"],
-            row["map_resource_state"],
-        ),
-    )
-
-# Commit the transaction and close the connection
-conn.commit()
-cursor.close()
-conn.close()
+    "activities.csv",
+    index_col="activity_id",
+)
 
 
+def load_schema(filename):
+    """Load the SQL schema from a file and execute it."""
+    with open(filename, "r") as file:
+        schema_sql = file.read()
 
-rows_n = (
-            row["resource_state"],
-            row["athlete"],
-            row["name"],
-            row["distance"],
-            row["moving_time"],
-            row["elapsed_time"],
-            row["total_elevation_gain"],
-            row["activities_type"],
-            row["sport_type"],
-            row["workout_type"],
-            row["id"],
-            row["start_date"],
-            row["start_date_local"],
-            row["timezone"],
-            row["utc_offset"],
-            row["location_city"],
-            row["location_state"],
-            row["location_country"],
-            row["achievement_count"],
-            row["kudos_count"],
-            row["comment_count"],
-            row["athlete_count"],
-            row["photo_count"],
-            row["trainer"],
-            row["commute"],
-            row["manual"],
-            row["private"],
-            row["visibility"],
-            row["flagged"],
-            row["gear_id"],
-            row["start_latlng"],
-            row["end_latlng"],
-            row["average_speed"],
-            row["max_speed"],
-            row["average_cadence"],
-            row["average_temp"],
-            row["average_watts"],
-            row["max_watts"],
-            row["weighted_average_watts"],
-            row["device_watts"],
-            row["kilojoules"],
-            row["has_heartrate"],
-            row["heartrate_opt_out"],
-            row["display_hide_heartrate_option"],
-            row["elev_high"],
-            row["elev_low"],
-            row["upload_id"],
-            row["upload_id_str"],
-            row["external_id"],
-            row["from_accepted_tag"],
-            row["pr_count"],
-            row["total_photo_count"],
-            row["has_kudoed"],
-            row["suffer_score"],
-            row["average_heartrate"],
-            row["max_heartrate"],
-            row["map_id"],
-            row["summary_polyline"],
-            row["map_resource_state"],
-        )
+    # Split commands by semicolon if there are multiple statements
+    commands = schema_sql.strip().split(";")
 
-(
-            resource_state, athlete, name, distance, moving_time, elapsed_time, total_elevation_gain,
-            activities_type, sport_type, workout_type, id, start_date, start_date_local, timezone, utc_offset,
-            location_city, location_state, location_country, achievement_count, kudos_count,
-            comment_count, athlete_count, photo_count, trainer, commute, manual, private, visibility,
-            flagged, gear_id, start_latlng, end_latlng, average_speed, max_speed, average_cadence,
-            average_temp, average_watts, max_watts, weighted_average_watts, device_watts, kilojoules,
-            has_heartrate, heartrate_opt_out, display_hide_heartrate_option, elev_high, elev_low,
-            upload_id, upload_id_str, external_id, from_accepted_tag, pr_count, total_photo_count,
-            has_kudoed, suffer_score, average_heartrate, max_heartrate, map_id, summary_polyline,
-            map_resource_state
-        ) 
+    with engine.connect() as connection:
+        for command in commands:
+            command = command.strip()  # Remove any surrounding whitespace
+            if command:  # Ensure command is not empty
+                connection.execute(text(command))  # Use text() for safety
 
-placeholder = (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                  %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                  %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s
-        )
 
-len(rows_n)
+# Load the schema
+load_schema("schema.sql")
 
-type
+# Insert the data
+try:
+    df.to_sql("activities", con=engine, if_exists="fail", index=True)
+except ValueError as e:
+    print(e)

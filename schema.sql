@@ -1,4 +1,3 @@
--- schema.sql
 CREATE TABLE IF NOT EXISTS activities (
     resource_state INT,
     athlete TEXT,
@@ -7,12 +6,12 @@ CREATE TABLE IF NOT EXISTS activities (
     moving_time INT,
     elapsed_time INT,
     total_elevation_gain FLOAT,
-    type TEXT,
+    activities_type TEXT,
     sport_type TEXT,
     workout_type FLOAT,
-    id BIGINT PRIMARY KEY,
+    activity_id BIGINT PRIMARY KEY,
     start_date TIMESTAMPTZ,
-    start_date_local TIMESTAMPTZ,
+    start_date_local TIMESTAMP,
     timezone TEXT,
     utc_offset FLOAT,
     location_city TEXT,
