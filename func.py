@@ -3,6 +3,7 @@ import requests
 import json
 import os
 import logging
+import pandas as pd
 from datetime import datetime
 from dotenv import load_dotenv
 
@@ -82,14 +83,16 @@ def get_athlete_info(access_token):
     return athlete
 
 
-def get_activities(access_token, athlete, start=None, end=None):
+def get_activities(access_token, athlete, start=None):
     print()
     print("Extracting athlete information ... ")
+
     if not start:
         start = athlete["created_at"]
+
     end = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-    start_unix = convert_to_timestamp(start)
-    end_unix = convert_to_timestamp(end)
+    start_unix = convert_str_to_unix(start)
+    end_unix = convert_str_to_unix(end)
 
     activities = []
     page = 1
@@ -137,10 +140,21 @@ def make_request(url, access_token):
     return response.json()
 
 
-def convert_to_timestamp(date_str):
-    return int(
+def convert_str_to_unix(date_str):
+    timestamp = int(
         datetime.strptime(
             date_str,
             "%Y-%m-%dT%H:%M:%SZ",
         ).timestamp()
     )
+    return timestamp
+
+
+def get_latest_activity():
+    #  Gets latest activity form json save on machine.
+    activities = import_json("activities.json")
+    df = pd.DataFrame(activities)
+
+    # NOTE dtype object seems sufficient for applying .max() method
+    # df["start_date"] = pd.to_datetime(df["start_date"])
+    return df["start_date"].max()
