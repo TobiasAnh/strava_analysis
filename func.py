@@ -8,23 +8,21 @@ import time
 import pytz
 from datetime import datetime
 from dotenv import load_dotenv
+from sqlalchemy import create_engine, text
 
-load_dotenv()
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Strava API ids
+# Load strava API credentials
+BASE_URL = "https://www.strava.com/api/v3/"
+load_dotenv()
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
-
 if not CLIENT_ID or not CLIENT_SECRET:
     logger.error("Missing CLIENT_ID or CLIENT_SECRET in environment variables")
     raise ValueError("Missing CLIENT_ID or CLIENT_SECRET in environment variables")
-
-
-BASE_URL = "https://www.strava.com/api/v3/"
 
 
 def get_tokens():
@@ -78,10 +76,9 @@ def get_strava_authorization_url(
 
 def get_athlete_info(access_token):
     print()
-    print("Extracting athlete information ... ")
+    logger.info("Extracting athlete information ... ")
     url = f"{BASE_URL}athlete"
     athlete = make_request(url, access_token)
-    create_json(athlete, "athlete.json")
     return athlete
 
 
@@ -148,3 +145,52 @@ def convert_str_to_unix(date_str, assign_to_utc=True):
     unix_utc_timestamp = int(utc_datetime.timestamp())
 
     return unix_utc_timestamp
+
+
+# POSTGRES functions
+
+
+# Retrieve database credentials from environment variables
+def get_engine():
+    load_dotenv()
+    DB_USER = os.getenv("DB_USER")
+    DB_PASSWORD = os.getenv("DB_PASSWORD")
+    DB_HOST = os.getenv("DB_HOST")
+    DB_PORT = os.getenv("DB_PORT")
+    DB_NAME = os.getenv("DB_NAME")
+
+    # Create the engine using the credentials from the .env file
+    engine = create_engine(
+        f"postgresql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+    )
+
+    return engine
+
+
+# Get the latest start_date from the activities table
+def get_latest_datetime(datetime_col, table):
+    """Query the database to find the latest start_date."""
+
+    engine = get_engine()
+    with engine.connect() as connection:
+        result = connection.execute(text(f"SELECT MAX({datetime_col}) FROM {table};"))
+        latest_datetime = result.scalar()  # Get the single scalar value
+        print(f"Latest datetime for {datetime_col} found in {table} from ... ")
+        print(latest_datetime)
+    return convert_str_to_unix(latest_datetime)
+
+
+def load_schema(filename):
+    """Load the SQL schema from a file and execute it."""
+    with open(filename, "r") as file:
+        schema_sql = file.read()
+
+    # Split commands by semicolon if there are multiple statements
+    commands = schema_sql.strip().split(";")
+
+    engine = get_engine()
+    with engine.connect() as connection:
+        for command in commands:
+            command = command.strip()  # Remove any surrounding whitespace
+            if command:  # Ensure command is not empty
+                connection.execute(text(command))  # Use text() for safety
