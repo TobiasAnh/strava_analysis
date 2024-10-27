@@ -1,5 +1,7 @@
 import pandas as pd
+import time
 from func import (
+    import_json,
     get_tokens,
     get_athlete_info,
     get_activities,
@@ -15,8 +17,13 @@ from func import (
 
 def main():
 
-    initial_setup = False
-    access_token, refresh_token = get_tokens()
+    tokens = import_json("tokens.json")
+    if int(time.time()) > tokens["expires_at"]:
+        access_token, refresh_token, expires_at = get_tokens(
+            refresh_token=tokens["refresh_token"],
+        )
+    else:
+        access_token = tokens["access_token"]
 
     # Fetch athlete data
     athlete = get_athlete_info(access_token)
@@ -24,6 +31,7 @@ def main():
     # _ = pd.DataFrame.from_dict(athlete, orient="index").T
 
     # Fetch activities
+    initial_setup = False
     if initial_setup:
         load_schema("activities.sql")
         start_unix = 1388530800  # refers to 2014 (activities date prior athlete account was set up)
@@ -37,7 +45,7 @@ def main():
     )
 
     if not activities:
-        return print("No (new) activities found.")
+        return
 
     # Transform (unnesting relevant info)
     df = pd.DataFrame(activities)

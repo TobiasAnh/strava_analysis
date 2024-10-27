@@ -25,35 +25,55 @@ if not CLIENT_ID or not CLIENT_SECRET:
     raise ValueError("Missing CLIENT_ID or CLIENT_SECRET in environment variables")
 
 
-def get_tokens():
-    authorization_url = get_strava_authorization_url(CLIENT_ID)
-    webbrowser.open(authorization_url)
+def get_tokens(refresh_token=None):
 
-    code = input(
-        "Look at your browser. Enter the code you received after authorization: "
-    ).strip()
-    access_token, refresh_token = exchange_code_for_token(
-        CLIENT_ID,
-        CLIENT_SECRET,
-        code,
+    payload = {
+        "client_id": CLIENT_ID,
+        "client_secret": CLIENT_SECRET,
+    }
+
+    if not refresh_token:
+        authorization_url = get_strava_authorization_url(CLIENT_ID)
+        webbrowser.open(authorization_url)
+        code = input(
+            "Look at your browser. Enter the code you received after authorization: "
+        )
+        # code = "38798a777462c0aee6460c084d5875a108823d79"
+        code = code.strip()
+        payload.update(
+            {
+                "code": code,
+                "grant_type": "authorization_code",
+            }
+        )
+
+    else:
+        payload.update(
+            {
+                "grant_type": "refresh_token",
+                "refresh_token": refresh_token,
+            }
+        )
+
+    response = requests.post("https://www.strava.com/api/v3/oauth/token", data=payload)
+    response_dict = response.json()
+    logger.info("Access and refresh token found.")
+    logger.info(
+        f"access_token expires in {int(response_dict['expires_in'] / 60)} minutes."
     )
 
-    logger.info("Access and refresh token found.")
-    return access_token, refresh_token
-
-
-def exchange_code_for_token(client_id, client_secret, code):
-    token_url = "https://www.strava.com/oauth/token"
-    payload = {
-        "client_id": client_id,
-        "client_secret": client_secret,
-        "code": code,
-        "grant_type": "authorization_code",
+    tokens = {
+        "access_token": response_dict["access_token"],
+        "refresh_token": response_dict["refresh_token"],
+        "expires_at": response_dict["expires_at"],
     }
-    response = requests.post(token_url, data=payload)
-    response.raise_for_status()
-    response_dict = response.json()
-    return response_dict["access_token"], response_dict["refresh_token"]
+    create_json(tokens, "tokens.json")
+
+    return (
+        response_dict["access_token"],
+        response_dict["refresh_token"],
+        response_dict["expires_at"],
+    )
 
 
 def get_strava_authorization_url(
@@ -67,7 +87,7 @@ def get_strava_authorization_url(
         "client_id": client_id,
         "response_type": "code",
         "redirect_uri": redirect_uri,
-        "approval_prompt": "force",
+        "approval_prompt": "force",  # force / auto
         "scope": scope_str,
     }
     request_url = requests.Request("GET", base_url, params=params).prepare().url
