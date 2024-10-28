@@ -1,4 +1,6 @@
-CREATE TABLE IF NOT EXISTS activities (
+CREATE SCHEMA strava_schema; 
+
+CREATE TABLE IF NOT EXISTS strava_schema.activities (
     resource_state INT,
     athlete TEXT,
     name TEXT,

@@ -9,6 +9,7 @@ import pytz
 from datetime import datetime
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
+from sqlalchemy.exc import ProgrammingError
 
 
 # Set up logging
@@ -95,7 +96,6 @@ def get_strava_authorization_url(
 
 
 def get_athlete_info(access_token):
-    print()
     logger.info("Extracting athlete information ... ")
     url = f"{BASE_URL}athlete"
     athlete = make_request(url, access_token)
@@ -103,7 +103,6 @@ def get_athlete_info(access_token):
 
 
 def get_activities(access_token, athlete, start_unix=None):
-    print()
     logger.info("Extracting activities ... ")
 
     end_unix = int(time.time())
@@ -158,6 +157,8 @@ def make_request(url, access_token):
 
 
 def convert_str_to_unix(date_str, assign_to_utc=True):
+    if not date_str:
+        logger.info("No time found")
     if assign_to_utc:
         naive_datetime = datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%SZ")
         utc_datetime = pytz.utc.localize(naive_datetime)
@@ -191,13 +192,21 @@ def get_engine():
 def get_latest_datetime(datetime_col, table):
     """Query the database to find the latest start_date."""
 
-    engine = get_engine()
-    with engine.connect() as connection:
-        result = connection.execute(text(f"SELECT MAX({datetime_col}) FROM {table};"))
-        latest_datetime = result.scalar()  # Get the single scalar value
-        print(f"Latest datetime for {datetime_col} found in {table} from ... ")
-        print(latest_datetime)
-    return convert_str_to_unix(latest_datetime)
+    try:
+        engine = get_engine()
+        with engine.connect() as connection:
+            result = connection.execute(
+                text(f"SELECT MAX({datetime_col}) FROM {table};")
+            )
+            latest_datetime = result.scalar()  # Get the single scalar value
+            print(f"Latest datetime for {datetime_col} found in {table} from ... ")
+            print(latest_datetime)
+
+            return convert_str_to_unix(latest_datetime)
+
+    except ProgrammingError:
+        logger.info(f"{table} not found. Setting latest_datetime manually.")
+        return 1388530800  # timestamprefers to 2014
 
 
 def load_schema(filename):
