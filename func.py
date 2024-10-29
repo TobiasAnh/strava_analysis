@@ -103,7 +103,6 @@ def get_athlete_info(access_token):
 
 
 def get_activities(access_token, athlete, start_unix=None):
-    logger.info("Extracting activities ... ")
 
     end_unix = int(time.time())
 
