@@ -1,21 +1,38 @@
-# Use an official Python image from the Docker Hub
+# Start with an official Python image as the base
 FROM python:3.10.12-slim
 
-# Set a working directory in the container
+# Set environment variables
+ENV PYTHONUNBUFFERED=1 \
+    POETRY_VERSION=1.5.1 \
+    # Ensures Poetry creates a virtual environment inside the container
+    POETRY_VIRTUALENVS_IN_PROJECT=true \
+    # Avoids sending telemetry data in Docker builds
+    POETRY_NO_INTERACTION=1
+
+# Install system dependencies required for Poetry and building Python packages
+RUN apt-get update && apt-get install -y curl \
+    && curl -sSL https://install.python-poetry.org | python3 - \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Add Poetry to PATH
+ENV PATH="/root/.local/bin:$PATH"
+
+# Set the working directory inside the container
 WORKDIR /app
 
-# Copy the requirements file to the container
-COPY requirements.txt .
+# Copy Poetry files first to leverage Docker layer caching
+COPY pyproject.toml poetry.lock ./
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Install dependencies (without installing the project itself)
+RUN poetry install --no-root --no-dev
 
 # Copy the rest of the application code
 COPY . .
 
-# Specify the command to run your app (replace `app.py` with your entrypoint script)
-CMD ["python", "main.py"]
-
+# If your main application file is called main.py, this is how you run it
+# Otherwise, adjust the entry point or command accordingly
+CMD ["poetry", "run", "python", "main.py"]
 
 # docker build -t my-python-app . # builds the docker image 
 # docker images # lists the image 
