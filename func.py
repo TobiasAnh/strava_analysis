@@ -198,12 +198,12 @@ def get_latest_datetime(datetime_col, table):
                 text(f"SELECT MAX({datetime_col}) FROM {table};")
             )
             latest_datetime = result.scalar()  # Get the single scalar value
-            logger.info(f"Latest >> {datetime_col} << in database >> {table}: {latest_datetime}")
+            logger.info(f"Latest {datetime_col} in table {table}: {latest_datetime}")
             return convert_str_to_unix(latest_datetime)
 
     except ProgrammingError:
         logger.info(f"{table} not found. Setting latest_datetime manually.")
-        return 1388530800  # timestamprefers to 2014
+        return 1388530800  # timestamp refers to 2014
 
 
 def load_schema(filename):
