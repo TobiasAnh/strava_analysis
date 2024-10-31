@@ -36,11 +36,7 @@ CMD ["poetry", "run", "python", "main.py"]
 
 # docker build -t my-python-app . # builds the docker image 
 # docker images # lists the image 
-# docker run -it --rm my-python-app # runs the image (according to CMD)
-# docker run -it --rm --network="host" my-python-app 
-
-
-
+# docker run -it --rm --network="host" my-python-app # runs the image  (according to CMD)
 # With the setup above, the "--network" flag forces the app to use the host network. 
 # Consequently, the app finds the postgresql database on "localhost". Thus, it requires the postgres
 # application to be installed and configured beforehand. 

@@ -4,7 +4,6 @@ version = "0.1.0"
 description = "strava api data fetch followed by a storage in postgresql data set"
 authors = ["tanh"]
 readme = "README.md"
-package-mode = false
 
 [tool.poetry.dependencies]
 python = "^3.10"
