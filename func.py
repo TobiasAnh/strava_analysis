@@ -198,9 +198,7 @@ def get_latest_datetime(datetime_col, table):
                 text(f"SELECT MAX({datetime_col}) FROM {table};")
             )
             latest_datetime = result.scalar()  # Get the single scalar value
-            print(f"Latest datetime for {datetime_col} found in {table} from ... ")
-            print(latest_datetime)
-
+            logger.info(f"Latest >> {datetime_col} << in database >> {table}: {latest_datetime}")
             return convert_str_to_unix(latest_datetime)
 
     except ProgrammingError:
