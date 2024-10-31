@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "strava-analysis"
+version = "0.1.0"
+description = "strava api data fetch followed by a storage in postgresql data set"
+authors = ["tanh"]
+readme = "README.md"
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.10"
+pandas = "2.2.3"
+certifi = "2024.8.30"
+charset-normalizer = "3.4.0"
+greenlet = "3.1.1"
+idna = "3.10"
+numpy = "2.1.2"
+psycopg2-binary = "2.9.10"
+python-dateutil = "2.9.0.post0"
+python-dotenv = "1.0.1"
+pytz = "2024.2"
+requests = "2.32.3"
+six = "1.16.0"
+sqlalchemy = "2.0.36"
+typing-extensions = "4.12.2"
+tzdata = "2024.2"
+urllib3 = "2.2.3"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
