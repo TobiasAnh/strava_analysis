@@ -8,11 +8,11 @@ services:
     depends_on:
       - db
     environment:
-      - DATABASE_HOST=${DB_HOST}
-      - DATABASE_PORT=${DB_PORT}
-      - DATABASE_NAME=${DB_NAME}
-      - DATABASE_USER=${DB_USER}
-      - DATABASE_PASSWORD=${DB_PASSWORD}
+      - DATABASE_HOST: ${DB_HOST}
+      - DATABASE_PORT: ${DB_PORT}
+      - DATABASE_NAME: ${DB_NAME}
+      - DATABASE_USER: ${DB_USER}
+      - DATABASE_PASSWORD: ${DB_PASSWORD}
     command: [ "poetry", "run", "python", "main.py" ]
     volumes:
       - .:/app # Optional: Mount the app directory for development
@@ -20,9 +20,9 @@ services:
   db:
     image: postgres:14
     environment:
-      - POSTGRES_DB=${DATABASE_NAME}
-      - POSTGRES_USER=${DATABASE_USER}
-      - POSTGRES_PASSWORD=${DATABASE_PASSWORD}
+      - POSTGRES_DB: ${DATABASE_NAME}
+      - POSTGRES_USER: ${DATABASE_USER}
+      - POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
