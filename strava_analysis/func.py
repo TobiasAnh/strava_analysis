@@ -17,8 +17,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Load strava API credentials
-BASE_URL = "https://www.strava.com/api/v3/"
 load_dotenv()
+BASE_URL = "https://www.strava.com/api/v3/"
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 if not CLIENT_ID or not CLIENT_SECRET:
@@ -173,11 +173,11 @@ def convert_str_to_unix(date_str, assign_to_utc=True):
 # Retrieve database credentials from environment variables
 def get_engine():
     load_dotenv()
-    DB_USER = os.getenv("DB_USER")
-    DB_PASSWORD = os.getenv("DB_PASSWORD")
-    DB_HOST = os.getenv("DB_HOST")
-    DB_PORT = os.getenv("DB_PORT")
-    DB_NAME = os.getenv("DB_NAME")
+    DB_USER = os.getenv("DATABASE_USER")
+    DB_PASSWORD = os.getenv("DATABASE_PASSWORD")
+    DB_HOST = os.getenv("DATABASE_HOST")
+    DB_PORT = os.getenv("DATABASE_PORT")
+    DB_NAME = os.getenv("DATABASE_NAME")
 
     # Create the engine using the credentials from the .env file
     engine = create_engine(

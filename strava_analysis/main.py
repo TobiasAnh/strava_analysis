@@ -1,7 +1,7 @@
 import pandas as pd
 import time
 import argparse
-from func import (
+from strava_analysis.func import (
     import_json,
     get_tokens,
     get_athlete_info,
@@ -68,7 +68,7 @@ def main(mode):
     df = df.rename(columns={"type": "activities_type", "id": "activity_id"})
     df = df.drop(["map"], axis=1)
 
-    # TODO for some reason, the .to_sql only works when saving and reloading the csv.
+    # NOTE for some reason, the .to_sql only works when saving and reloading the csv.
     # Save and load csv
     df.to_csv("activities.csv", index=False)
     df = pd.read_csv(
