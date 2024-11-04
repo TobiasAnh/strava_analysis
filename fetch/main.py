@@ -1,7 +1,8 @@
 import pandas as pd
 import time
 import argparse
-from strava_analysis.func import (
+import os
+from fetch.func import (
     import_json,
     get_tokens,
     get_athlete_info,
