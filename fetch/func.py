@@ -23,7 +23,9 @@ CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
 if not CLIENT_ID or not CLIENT_SECRET:
     logger.error("Missing CLIENT_ID or CLIENT_SECRET in environment variables")
-    raise ValueError("Missing CLIENT_ID or CLIENT_SECRET in environment variables")
+    raise ValueError(
+        "Missing CLIENT_ID or CLIENT_SECRET in environment variables. Please check if .env file exits in repository"
+    )
 
 
 def get_tokens(refresh_token=None):
@@ -39,7 +41,6 @@ def get_tokens(refresh_token=None):
         code = input(
             "Look at your browser. Enter the code you received after authorization: "
         )
-        # code = "38798a777462c0aee6460c084d5875a108823d79"
         code = code.strip()
         payload.update(
             {
@@ -59,9 +60,6 @@ def get_tokens(refresh_token=None):
     response = requests.post("https://www.strava.com/api/v3/oauth/token", data=payload)
     response_dict = response.json()
     logger.info("Access and refresh token found.")
-    logger.info(
-        f"access_token expires in {int(response_dict['expires_in'] / 60)} minutes."
-    )
 
     tokens = {
         "access_token": response_dict["access_token"],
@@ -129,7 +127,7 @@ def get_activities(access_token, athlete, start_unix=None):
 def create_json(data, filepath="file.json"):
     with open(filepath, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=4)
-    logger.info(f"{filepath} has been created")
+    logger.info(f"{filepath} has been created or updated")
 
 
 def import_json(filepath):
@@ -189,7 +187,7 @@ def get_engine():
 
 # Get the latest start_date from the activities table
 def get_latest_datetime(datetime_col, table):
-    """Query the database to find the latest start_date."""
+    """Query postgresql database to find the latest start_date."""
 
     try:
         engine = get_engine()
@@ -198,11 +196,13 @@ def get_latest_datetime(datetime_col, table):
                 text(f"SELECT MAX({datetime_col}) FROM {table};")
             )
             latest_datetime = result.scalar()  # Get the single scalar value
-            logger.info(f"Latest {datetime_col} in table {table}: {latest_datetime}")
+            logger.info(
+                f"Latest {datetime_col} in postgresql table >> {table} <<: {latest_datetime}"
+            )
             return convert_str_to_unix(latest_datetime)
 
     except ProgrammingError:
-        logger.info(f"{table} not found. Setting latest_datetime manually.")
+        logger.info(f"Postgresql {table} not found. Setting latest_datetime manually.")
         return 1388530800  # timestamp refers to 2014
 
 
