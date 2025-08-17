@@ -7,7 +7,6 @@ __pycache__/
 *.mypy_cache/
 
 # Poetry virtualenvs (not needed inside container)
-.env
 .venv/
 
 # OS files

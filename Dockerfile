@@ -20,7 +20,7 @@ RUN apt-get update && \
 COPY pyproject.toml poetry.lock ./
 
 # Install Python dependencies
-RUN poetry install
+RUN poetry install --no-root
 
 # Copy the rest of the application code
 COPY . .
