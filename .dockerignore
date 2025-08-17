@@ -1,0 +1,33 @@
+# Python cache and virtual environments
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pytest_cache/
+*.mypy_cache/
+
+# Poetry virtualenvs (not needed inside container)
+.env
+.venv/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Project metadata
+README.md
+poetry.lock
+pyproject.toml
+
+# Local data files that should not be in container
+activities.csv
+tokens.json
+folder_entries.txt
+heatmap.html
+
+# Docker files (if you want to exclude the local Dockerfile context)
+Dockerfile
