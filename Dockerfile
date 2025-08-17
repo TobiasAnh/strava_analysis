@@ -29,7 +29,7 @@ ENV PYTHONUNBUFFERED=1
 
 
 # Set the default command to run the application
-CMD ["python", "fetch/main.py"]
+CMD ["python", "app/main.py"]
 
 
 # sudo docker run -it --rm --network="host" strava
