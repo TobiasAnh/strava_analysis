@@ -2,7 +2,7 @@ import pandas as pd
 import time
 import argparse
 import os
-from fetch.func import (
+from app.func import (
     import_json,
     get_tokens,
     get_athlete_info,
