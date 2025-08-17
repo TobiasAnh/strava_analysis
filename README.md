@@ -24,13 +24,22 @@ The script handles authentication, token refresh, athlete profile fetching, and 
 - A registered **Strava API application** (to obtain `client_id` and `client_secret`)
 - PostgreSQL database
 
+Exemeplary .env file
+CLIENT_ID=xxx
+CLIENT_SECRET=xxx
+
+POSTGRES_USER=xxx
+POSTGRES_PASSWORD=xxx
+POSTGRES_HOST=xxx
+POSTGRES_PORT=xxx
+POSTGRES_DB=xxx
+
 ---
 
 ## Installation and Setup
 
-1. Clone repository and install dependencies:
-   ```bash
+Clone repo and run docker command:
+```bash
    git clone https://github.com/TobiasAnh/strava_analysis
-   poetry install
-
-   
+   sudo docker run --rm --network host strava_analysis
+```
