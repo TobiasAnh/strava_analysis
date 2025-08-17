@@ -18,16 +18,5 @@ Thumbs.db
 .git/
 .gitignore
 
-# Project metadata
-README.md
-poetry.lock
-pyproject.toml
-
-# Local data files that should not be in container
-activities.csv
-tokens.json
-folder_entries.txt
-heatmap.html
-
 # Docker files (if you want to exclude the local Dockerfile context)
 Dockerfile
