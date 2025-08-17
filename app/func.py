@@ -17,9 +17,7 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Load strava API credentials
-dotenv_path = os.path.join(os.path.dirname(__file__), '..', '.env')
-print(dotenv_path)
-load_dotenv(dotenv_path)
+load_dotenv()
 BASE_URL = "https://www.strava.com/api/v3/"
 CLIENT_ID = os.getenv("CLIENT_ID")
 CLIENT_SECRET = os.getenv("CLIENT_SECRET")
