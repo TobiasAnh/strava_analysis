@@ -2,7 +2,7 @@
 
 This project fetches athlete and activity data from the **Strava API** and stores it in a **PostgreSQL database** for analysis and tracking.  
 
-The script handles authentication, token refresh, athlete profile fetching, and incremental updates of activity data. The application is containerized for easy deployment.
+The script handles authentication, token refresh, athlete profile fetching and incremental updates of activity data. The application is containerized for easy deployment.
 
 ---
 
@@ -24,22 +24,4 @@ The script handles authentication, token refresh, athlete profile fetching, and 
 - A registered **Strava API application** (to obtain `client_id` and `client_secret`)
 - PostgreSQL database
 
-Exemeplary .env file
-CLIENT_ID=xxx
-CLIENT_SECRET=xxx
-
-POSTGRES_USER=xxx
-POSTGRES_PASSWORD=xxx
-POSTGRES_HOST=xxx
-POSTGRES_PORT=xxx
-POSTGRES_DB=xxx
-
 ---
-
-## Installation and Setup
-
-Clone repo and run docker command:
-```bash
-   git clone https://github.com/TobiasAnh/strava_analysis
-   sudo docker run --rm --network host strava_analysis
-```
